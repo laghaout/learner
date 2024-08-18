@@ -1,0 +1,30 @@
+services:
+  learner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: $IMAGE_URI
+    volumes:
+      - $PWD:/$WORKDIR:ro
+    working_dir: /$WORKDIR/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+  learner-shell:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: $IMAGE_URI
+    volumes:
+      - $PWD:/$WORKDIR:ro
+    working_dir: /$WORKDIR/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    entrypoint: /bin/bash
+    tty: true
+    stdin_open: true
