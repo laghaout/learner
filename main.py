@@ -80,7 +80,11 @@ if __name__ == "__main__":
         # Default run
         case _:
             task = 'all'
-            # kwargs = assemble_kwargs(task, dict(learner=dict(params=dict(a=7))))
-            # output = main(task, kwargs)
-            output = main(task)
+            if False:
+                kwargs = assemble_kwargs(
+                    task, dict(
+                        learner=dict(params=dict(a=7))))
+                output = main(task, kwargs)
+            else:
+                output = main(task)
             print(output)
