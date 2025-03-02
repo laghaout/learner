@@ -79,7 +79,7 @@ if __name__ == "__main__":
             output = main(sys.argv[1], **kwargs)
         # Default run
         case _:
-            task = 'all'
+            task = 'train'
             if False:
                 kwargs = assemble_kwargs(
                     task, dict(
