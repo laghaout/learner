@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "forecasting"
-version = "0.0.1"
+name = "learner"
+version = "0.0.0"
 description = ""
 authors = ["Amine Laghaout"]
 readme = "README.md"
-packages = [{include = "forecasting"}]
+packages = [{include = "learner"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 
 
 [build-system]

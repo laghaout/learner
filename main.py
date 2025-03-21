@@ -1,59 +1,50 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul 14 10:47:49 2024
-
-@author: amine
 """
 
 import json
 import learner.learner as lea
-import learner.utilities as util
 import learner.wrangler as wra
 import sys
 
 
-def assemble_kwargs(task: str = None, kwargs: dict = None):
+def main(task: str = None, kwargs: dict = dict(config='config.json')) -> object:
 
-    envars = util.get_env_variables()
+    with open(kwargs["config"]) as file:
+        kwargs = json.load(file)
 
-    with open(envars.DEFAULT_CONFIG, 'r') as file:
-        default_config = json.load(file)
-        for k, v in default_config.items():
-            default_config[k] = dict(params=dict(envars=envars)) | v
-
-    if kwargs is not None:
-        return default_config | kwargs
-    else:
-        return default_config
-
-
-def main(task: str, kwargs: dict = dict()) -> object:
-
-    kwargs = assemble_kwargs(task, kwargs)
-
-    match task.lower():
+    match task:
         case 'oneoffwrangle':
             pass  # TODO
         case 'wrangle':
             return wra.Wrangler(**kwargs['wrangler'])
         case 'train':
-            wrangler = wra.Wrangler(**kwargs['wrangler'])
-            learner = lea.Learner(data=wrangler, **kwargs['learner'])
-            learner.design()
+            wrangler = wra.Wrangler(**kwargs["wrangler"])
+            if isinstance(kwargs["learner"], dict):
+                learner = lea.Learner(data=wrangler, **kwargs['learner'])
+                learner.design()
+            elif isinstance(kwargs["learner"], lea.Learner):
+                learner = kwargs["learner"]
+                learner.data = wrangler
             learner.train()
             if hasattr(learner.data.dataset, 'test'):
                 learner.test()
             return learner
         case 'test':
-            learner = kwargs['learner']
-            learner.data = wra.Wrangler(**kwargs['wrangler'])
+            wrangler = wra.Wrangler(**kwargs["wrangler"])
+            assert isinstance(kwargs["learner"], lea.Learner), "No learner specified!"
+            learner = kwargs["learner"]
+            learner.data = wrangler
             learner.test()
             return learner.report.test
         case 'serve':
-            learner = kwargs['learner']
-            learner.data = wra.Wrangler(**kwargs['wrangler'])
+            wrangler = wra.Wrangler(**kwargs["wrangler"])
+            assert isinstance(kwargs["learner"], lea.Learner), "No learner specified!"
+            learner = kwargs["learner"]
+            learner.data = wrangler
             return learner.serve()
-        case 'all':
+        case _:
             wrangler = wra.Wrangler(**kwargs['wrangler'])
             learner = lea.Learner(data=wrangler, **kwargs['learner'])
             learner.explore()
@@ -63,8 +54,6 @@ def main(task: str, kwargs: dict = dict()) -> object:
             learner.serve()
             learner.save()
             return learner
-        case _:
-            assert False, f"There is no such task as task = `{task}`."
 
 
 if __name__ == "__main__":
@@ -73,18 +62,10 @@ if __name__ == "__main__":
         # CLI call with default arguments
         case 2:
             output = main(sys.argv[1])
+            
         # CLI call with specified arguments
         case 3:
-            kwargs = assemble_kwargs(sys.argv[1], sys.argv[2])
-            output = main(sys.argv[1], **kwargs)
+            pass  # TODO
         # Default run
         case _:
-            task = 'train'
-            if False:
-                kwargs = assemble_kwargs(
-                    task, dict(
-                        learner=dict(params=dict(a=7))))
-                output = main(task, kwargs)
-            else:
-                output = main(task)
-            print(output)
+            output = main()

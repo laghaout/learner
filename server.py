@@ -1,54 +1,74 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul 21 11:40:46 2024
-
-@author: amine
-
-Launch with uvicorn server:app --reload
 """
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
 
 app = FastAPI()
 
-class Item(BaseModel):
-    name: str = None
-    age: int = None
-
-items = {0: Item(name='Amine', age=42), 1: Item(name='Joe', age=72)}
-
-def yob(age: int, current_year: int) -> int:
-    return current_year - age
-
 @app.get("/")
-def index() -> dict[str, dict[int, Item]]:
-    return {'items': items}
+async def root(task: str = None):
+    # http://127.0.0.1:8000/?task=task
+    from main import main
+    output = main(task)
+    match task:
+        case 'serve':
+            pass  # TODO: Convert to pydantic
+        case _:
+            output = str(output)
+    return {"output": output}
 
-@app.get("/items/{item_id}")
-def query_item_by_id(item_id: int) -> Item:
-    if item_id not in items:
-        raise HTTPException(status_code=404, detail=f"{item_id=} does not exist")
-    return items[item_id]
+
+#%% Server
+
+if True:
+
+    # Use this for the data from the wranglers or for the inferences from the 
+    # serving.
+    class Item(BaseModel):
+        city: str = None
+        age: int = None
+    items = {'Joe': Item(city='Charlottetown', age=42), 'Jane': Item(city='Toronto', age=36)}
+
+    @app.get("/index")
+    def index() -> dict[str, dict[str, Item]]:
+        return {'items': items}
+
+    @app.get("/index/{item_id}")
+    def index_id(item_id: str) -> Item:
+        if item_id not in items:
+            raise HTTPException(status_code=404, detail=f"{item_id=} does not exist")
+        return items[item_id]
     
-@app.post("/predict")
-def predict(data:dict):
-    return {'prediction': data['age']*7.4}
+    # Example of basic function: Year of birth
+    @app.get("/yob")
+    def yob(age: int, current_year: int = 2025) -> int:
+        # http://127.0.0.1:8000/yob/?age=38&current_year=1981
+        return current_year - age
+        
+    @app.get("/convert")
+    def convert(Fahrenheit: float) -> float:
+        return (Fahrenheit - 32)*5/9
 
+#%% Client
 
-@app.get("/predict2")
-def predict2(age:int):
-    return age*7.4
-
-@app.get("/yob/")
-def get_yob(age: int, current_year: Optional[int] = None):
-    if current_year is None:
-        from datetime import datetime
-        current_year = datetime.now().year
-    year_of_birth = yob(age, current_year)
-    return {"age": age, "current_year": current_year, "year_of_birth": year_of_birth}
-
-# http://127.0.0.1:8000/yob/?age=38&current_year=1981
-
-#%%
-
+if False:
+    import json
+    import requests
+    
+    data = [{"age": 100, "city": "Toronto"},
+            {"age": 42, "city": "Rabat"},
+            {"age": 12, "city": "Amizmiz"}]
+    
+    url = 'http://localhost:8000/predict/'
+    
+    predictions = []
+    for record in data:
+        payload = {'features': record}
+        payload = json.dumps(record)
+        response = requests.post(url, data=payload)
+        predictions.append(response.json()['prediction'])
+    
+    print(predictions)    

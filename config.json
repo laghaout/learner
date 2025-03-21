@@ -1,0 +1,22 @@
+{
+"wrangler": {
+    "params": {
+        "nrows": null
+        }
+    }, 
+"learner": {
+    "params": {
+        "early_stopping_threshold": 0.9999,
+        "epochs": 145,
+        "batch_size": 16,
+        "loss": "categorical_crossentropy",
+        "optimizer": "adam",
+        "metrics": ["accuracy"],
+        "hidden_units": [16],
+        "output_units": 3,
+        "activation": "relu",
+        "output_activation": "softmax"
+        },
+    "save_to": ["lesson"]
+    }
+}

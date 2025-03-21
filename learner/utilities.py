@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul 14 11:06:21 2024
-
-@author: amine
 """
 
 import os

@@ -27,7 +27,7 @@ RUN pip3 install uvicorn==0.30.6
 RUN pip3 install pydantic==2.8.2
 RUN pip3 install requests==2.32.3
 # Copy all the necessary files
-COPY Dockerfile *.py *.yml *.txt *.sh *.toml README.* .pre-commit-config.yaml .env ./
+COPY Dockerfile *.py *.yml *.txt *.sh config.json *.toml README.* .pre-commit-config.yaml .env ./
 COPY learner/ learner
 COPY tests/ tests
 
