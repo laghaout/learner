@@ -12,7 +12,7 @@ RUN apt -y upgrade
 RUN apt -y install less
 RUN apt -y install tree
 
-# Install the Python packages.
+# Install the default Python packages.
 RUN python3 -m pip install --upgrade pip
 RUN pip3 install --user --upgrade pip
 RUN pip3 install seaborn==0.13.2
@@ -26,6 +26,10 @@ RUN pip3 install fastapi==0.112.0
 RUN pip3 install uvicorn==0.30.6
 RUN pip3 install pydantic==2.8.2
 RUN pip3 install requests==2.32.3
+
+# Install the extra Python packages.
+RUN pip3 install tensorflow==2.19.0
+
 # Copy all the necessary files
 COPY Dockerfile *.py *.yml *.txt *.sh config.json *.toml README.* .pre-commit-config.yaml .env ./
 COPY learner/ learner

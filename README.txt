@@ -26,7 +26,7 @@ docker compose run learner TASK
 #+END_SRC
 For the interactive command line, run this instead:
 #+BEGIN_SRC bash
-docker compose run learner-shell TASK
+docker compose run learner-shell
 #+END_SRC
 ** Via FastAPI
 #+BEGIN_SRC bash
