@@ -4,7 +4,10 @@ Created on Sun Jul 21 11:40:46 2024
 """
 
 from fastapi import FastAPI, HTTPException
+import learner.utilities as util
+import learner.wrangler as wra
 from pydantic import BaseModel
+
 
 app = FastAPI()
 
@@ -13,12 +16,11 @@ async def root(task: str = None):
     # http://127.0.0.1:8000/?task=task
     from main import main
     output = main(task)
-    match task:
-        case 'serve':
-            pass  # TODO: Convert to pydantic
-        case _:
-            output = str(output)
-    return {"output": output}
+    output = util.df_to_pydantic(
+        output.report.serve['prediction'].reset_index(),
+        wra.Output
+        )    
+    return output
 
 
 #%% Server
@@ -52,7 +54,7 @@ if True:
     def convert(Fahrenheit: float) -> float:
         return (Fahrenheit - 32)*5/9
 
-#%% Client
+#%% Client for inference (once a model has been trained and deployed).
 
 if False:
     import json

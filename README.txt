@@ -13,14 +13,14 @@ Decide which =TASK ∈ {wrangle, train, test, serve}= is to be executed. Not spe
 ** Via Docker
 *** Single run
 #+BEGIN_SRC bash
-docker run -v "$(pwd):/data" learner TASK
+docker run -v "$(pwd):/learner" learner TASK
 #+END_SRC
 *** Interactive
 #+BEGIN_SRC bash
-docker run -it --entrypoint bash -v "$(pwd):/data" learner
+docker run -it --entrypoint bash -v "$(pwd):/learner" learner
 #+END_SRC
 *** Docker compose
-Edit =docker-compose.yml= if needed. The mounted volumes are read-only by default.
+Edit =docker-compose.yml= if needed.
 #+BEGIN_SRC bash
 docker compose run learner TASK
 #+END_SRC

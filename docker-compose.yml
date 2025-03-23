@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: $IMAGE_URI
     volumes:
-      - $PWD:/$WORKDIR:ro
+      - $PWD:/$WORKDIR
     working_dir: /$WORKDIR/
     logging:
       driver: "json-file"
@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     image: $IMAGE_URI
     volumes:
-      - $PWD:/$WORKDIR:ro
+      - $PWD:/$WORKDIR
     working_dir: /$WORKDIR/
     logging:
       driver: "json-file"

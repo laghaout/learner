@@ -5,6 +5,7 @@ Created on Sun Jul 14 10:47:49 2024
 
 import json
 import learner.learner as lea
+import learner.utilities as util
 import learner.wrangler as wra
 import sys
 
@@ -62,10 +63,13 @@ if __name__ == "__main__":
         # CLI call with default arguments
         case 2:
             output = main(sys.argv[1])
-            
         # CLI call with specified arguments
         case 3:
             pass  # TODO
         # Default run
         case _:
             output = main()
+
+#%% Experiment
+
+pass

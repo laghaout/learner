@@ -4,6 +4,7 @@ Created on Sun Jul 14 11:16:03 2024
 """
 
 from pydantic import BaseModel
+import time
 from types import SimpleNamespace
 from typing import Optional
 import learner.utilities as util
@@ -13,15 +14,17 @@ import learner.wrangler as wra
 class Learner(BaseModel):
     data: wra.Wrangler = None
     params: Optional[dict] = dict()
+    hyperparams: Optional[dict] = dict()  # Model hyperparameters
     model: object = None
     report: dict = {
-        k: dict(delta_tau=None)
+        k: dict(runtime=None)
         for k in "wrangle explore design train test serve".split()}
     save_to: Optional[str | tuple] = None
 
     def model_post_init(self, __context: dict[str, any]) -> None:
         self.report = SimpleNamespace(**self.report)
         self.params = SimpleNamespace(**self.params)
+        self.hyperparams = SimpleNamespace(**self.hyperparams)
 
     def __call__(self, tasks: str):
         tasks = tasks.split()
@@ -42,84 +45,100 @@ class Learner(BaseModel):
         util.disp("==== DESIGN ======================================")
 
         #%% Start example #####################################################
-        import os
-        import tensorflow as tf
-
-        early_stopping_threshold = self.params.early_stopping_threshold
-        metric = self.params.metrics[0]
-        
-        class EarlyStopping(tf.keras.callbacks.Callback):
-            def on_epoch_end(
-                self,
-                epoch,
-                logs={},
-                early_stopping_threshold=early_stopping_threshold,
-            ):
-                if logs.get(f"val_{metric}") > early_stopping_threshold:
-                    print(
-                        f"\nReached {early_stopping_threshold*100}%",
-                        "validation accuracy so cancelling training!",
-                    )
-                    self.model.stop_training = True
-
-        model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-            filepath=os.path.join(*self.save_to+("checkpoints.keras",)),
-            save_weights_only=False,
-            verbose=0,
-            monitor=f"val_{self.params.metrics[0]}",
-            mode="max",
-            save_best_only=True,
-        )
-
-        self.params.callbacks = [
-            EarlyStopping(),
-            model_checkpoint_callback,
-            tf.keras.callbacks.TensorBoard(
-                log_dir=self.save_to,
-                histogram_freq=1,
-                profile_batch=0,
-                write_images=True,
-            ),
-        ]
-
-        # Model
-        self.model = tf.keras.Sequential(
-            [
-                tf.keras.layers.Dense(
-                    self.params.hidden_units[0],
-                    input_dim=len(self.data.params.feature_names),
-                    activation=self.params.activation,
-                )
-            ]
-            + [
-                tf.keras.layers.Dense(
-                    hidden_units, activation=self.params.activation
-                )
-                for hidden_units in self.params.hidden_units[1:]
-            ]
-            + [
-                tf.keras.layers.Dense(
-                    self.params.output_units,
-                    activation=self.params.output_activation,
-                )
-            ]
-        )
-
-        self.model.compile(
-            loss=self.params.loss,
-            optimizer=self.params.optimizer,
-            metrics=self.params.metrics,
-        )
+        if self.params.RUN_EXAMPLE:
+            from sklearn.linear_model import LogisticRegression
+            self.model = LogisticRegression(C=self.hyperparams.C)
         #%% End example #######################################################
 
     def train(self, data: wra.Wrangler = None):
         util.disp("==== TRAIN =======================================")
 
+        #%% Start example #####################################################
+        if self.params.RUN_EXAMPLE:
+            if data is None:
+                data = self.data
+                dataset = self.data.dataset.train
+            else:
+                dataset = self.data.dataset
+
+            runtime = time.time()
+    
+            self.model.fit(
+                dataset[data.params.feature_names],
+                dataset[data.params.target_names],
+            )
+    
+            self.report.train["score"] = self.model.score(
+                dataset[data.params.feature_names],
+                dataset[data.params.target_names]
+                )
+    
+            self.report.train["runtime"] = time.time() - runtime
+
     def test(self, data: wra.Wrangler = None):
         util.disp("==== TEST ========================================")
+
+        #%% Start example #####################################################
+        if self.params.RUN_EXAMPLE:
+            if data is None:
+                data = self.data
+                dataset = self.data.dataset.test
+            else:
+                dataset = self.data.dataset
+            
+            runtime = time.time()
+                
+            self.report.test["score"] = self.model.score(
+                dataset[data.params.feature_names],
+                dataset[data.params.target_names]
+                )
+                
+            self.report.test["runtime"] = time.time() - runtime
+        #%% End example #######################################################
 
     def serve(self, data: wra.Wrangler = None):
         util.disp("==== SERVE =======================================")
 
+        #%% Start example #####################################################
+        import pandas as pd
+        
+        if self.params.RUN_EXAMPLE:
+            if data is None:
+                data = self.data
+                dataset = self.data.dataset.serve
+            else:
+                dataset = self.data.dataset
+            
+            runtime = time.time()
+                
+            prediction = self.model.predict(
+                dataset[data.params.feature_names]
+                )
+            
+            prediction = pd.DataFrame(
+                prediction,
+                columns=['target'],
+                index=dataset[data.params.feature_names].index)
+            
+            prediction.target = prediction.target.apply(
+                lambda x: str(data.params.classes[int(x)]))
+            
+            self.report.serve["prediction"] = prediction
+            self.report.serve["runtime"] = time.time() - runtime
+        #%% End example #######################################################
+
+
     def save(self):
         util.disp("==== SAVE ========================================")
+        
+        #%% Start example #####################################################
+        if self.params.RUN_EXAMPLE:
+            import dill
+            import os
+            
+            util.create_directory(os.path.join(*self.save_to))
+            with open(os.path.join(*self.save_to+('learner.dill',)), 'wb') as f:
+                dill.dump(self, f)
+        #%% End example #######################################################
+        
+        

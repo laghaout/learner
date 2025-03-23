@@ -1,19 +1,19 @@
 
 # Table of Contents
 
-1.  [To-do <code>[1/3]</code>](#orgd1381ce)
-2.  [Setup](#orgc56dbc5)
-3.  [User manual](#org2fc815d)
-    1.  [Via Docker](#orgfa73dfb)
-        1.  [Single run](#orgb08076e)
-        2.  [Interactive](#orgf40e5af)
-        3.  [Docker compose](#orgb66ea8b)
-    2.  [Via FastAPI](#org4eaad0c)
-    3.  [Via Python import (not tested yet)](#org1b9cbc5)
+1.  [To-do <code>[1/3]</code>](#orgbfa7696)
+2.  [Setup](#org8efd97b)
+3.  [User manual](#org2c41f63)
+    1.  [Via Docker](#org0bdfbfb)
+        1.  [Single run](#org7b2e940)
+        2.  [Interactive](#org3526770)
+        3.  [Docker compose](#org465eece)
+    2.  [Via FastAPI](#org8bb9bc9)
+    3.  [Via Python import (not tested yet)](#orgd01ce6c)
 
 
 
-<a id="orgd1381ce"></a>
+<a id="orgbfa7696"></a>
 
 # To-do <code>[1/3]</code>
 
@@ -22,7 +22,7 @@
 3.  [ ] Fix `server.py` and `client.py` and integrate them with `main.py` so as to be able to use FastAPI.
 
 
-<a id="orgc56dbc5"></a>
+<a id="org8efd97b"></a>
 
 # Setup
 
@@ -31,37 +31,37 @@
 3.  [ ] If needed, create a docker image with `docker compose build`.
 
 
-<a id="org2fc815d"></a>
+<a id="org2c41f63"></a>
 
 # User manual
 
 Decide which `TASK ∈ {wrangle, train, test, serve}` is to be executed. Not specifying a TASK will run them all in sequence.
 
 
-<a id="orgfa73dfb"></a>
+<a id="org0bdfbfb"></a>
 
 ## Via Docker
 
 
-<a id="orgb08076e"></a>
+<a id="org7b2e940"></a>
 
 ### Single run
 
-    docker run -v "$(pwd):/data" learner TASK
+    docker run -v "$(pwd):/learner" learner TASK
 
 
-<a id="orgf40e5af"></a>
+<a id="org3526770"></a>
 
 ### Interactive
 
-    docker run -it --entrypoint bash -v "$(pwd):/data" learner
+    docker run -it --entrypoint bash -v "$(pwd):/learner" learner
 
 
-<a id="orgb66ea8b"></a>
+<a id="org465eece"></a>
 
 ### Docker compose
 
-Edit `docker-compose.yml` if needed. The mounted volumes are read-only by default.
+Edit `docker-compose.yml` if needed.
 
     docker compose run learner TASK
 
@@ -70,14 +70,14 @@ For the interactive command line, run this instead:
     docker compose run learner-shell
 
 
-<a id="org4eaad0c"></a>
+<a id="org8bb9bc9"></a>
 
 ## Via FastAPI
 
     docker compose run -it -p 8000:8000 --entrypoint uvicorn learner server:app --host 0.0.0.0 --port 8000 --reload
 
 
-<a id="org1b9cbc5"></a>
+<a id="orgd01ce6c"></a>
 
 ## Via Python import (not tested yet)
 

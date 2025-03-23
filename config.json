@@ -1,21 +1,24 @@
 {
 "wrangler": {
     "params": {
-        "nrows": null
+        "RUN_EXAMPLE": true,
+        "nrows": null,
+        "random_state": 42,
+        "target_names": "target",
+        "data_split": {
+            "train": 0.6,
+            "test": 0.17,
+            "serve": 0.23
+            }
         }
     }, 
 "learner": {
     "params": {
-        "early_stopping_threshold": 0.9999,
-        "epochs": 145,
-        "batch_size": 16,
-        "loss": "categorical_crossentropy",
-        "optimizer": "adam",
-        "metrics": ["accuracy"],
-        "hidden_units": [16],
-        "output_units": 3,
-        "activation": "relu",
-        "output_activation": "softmax"
+        "RUN_EXAMPLE": true,
+        "verbose": 1
+        },
+    "hyperparams": {
+        "C": 1e5
         },
     "save_to": ["lesson"]
     }

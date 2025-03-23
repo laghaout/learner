@@ -8,6 +8,7 @@ from dotenv import dotenv_values
 import json
 import logging
 import pandas as pd
+import pprint
 import sys
 from types import SimpleNamespace
 
@@ -28,9 +29,9 @@ def read_csv(directory, file, **kwargs):
 def disp(text=None, log=False):
 
     if log:
-        logging.info(text)
+        logging.info(pprint.pformat(text))
     else:
-        print(text)
+        pprint.pprint(text)
 
 
 def load_json_as_dict(file_path):
@@ -52,3 +53,7 @@ def get_env_variables(env_file='.env'):
     envars = dotenv_values(env_file)
     envars = SimpleNamespace(**envars)
     return envars
+
+def df_to_pydantic(df, PydanticModel):
+    
+    return [PydanticModel(**row) for row in df.to_dict(orient="records")]
